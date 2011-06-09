@@ -1,6 +1,8 @@
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -16,21 +18,28 @@ import javax.swing.WindowConstants;
 import javax.swing.border.Border;
 
 public class StammdatenErfassen {
-	public static void main(String[] args) {
 
+	
+	public static void main(String[] args) {
+		
 		fenster();
 	}
 
 	public static void fenster() {
-		JFrame logonscreen = new JFrame("Logon");
+		final JTextField txtGeburtsname;
+		final JLabel lblGeburtsname;
+		
+		final JFrame logonscreen = new JFrame("Logon");
+		final Listenoperationen liste = new Listenoperationen();
+		
 		logonscreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		
 		JPanel hauptpanel = new JPanel(new BorderLayout());
 		JPanel oben = new JPanel(new FlowLayout(1));
-		JLabel lblEingestellt = new JLabel("");
+		JLabel lblKonsole = new JLabel("");
 		
-		oben.add(lblEingestellt, BorderLayout.EAST);
+		oben.add(lblKonsole, BorderLayout.EAST);
 		
 		JPanel mitte = new JPanel(new FlowLayout(1));
 		JPanel verbindungen = new JPanel(new GridLayout(0,2));
@@ -43,7 +52,7 @@ public class StammdatenErfassen {
 		verbindungen.add(panel);
 		
 		Object[] werte = {"Frau", "Mann"};
-		JComboBox cbGeschlecht = new JComboBox(werte);
+		final JComboBox cbGeschlecht = new JComboBox(werte);
 		
 		panel = new JPanel(new FlowLayout(0));
 		panel.add(cbGeschlecht);
@@ -54,7 +63,7 @@ public class StammdatenErfassen {
 		verbindungen.add(panel);
 		
 		panel = new JPanel(new FlowLayout(0));
-		JTextField txtName = new JTextField(10);
+		final JTextField txtName = new JTextField(10);
 		panel.add(txtName);
 		verbindungen.add(panel);
 		
@@ -63,16 +72,17 @@ public class StammdatenErfassen {
 		verbindungen.add(panel);
 		
 		panel = new JPanel(new FlowLayout(0));
-		JTextField txtVorname = new JTextField(10);
+		final JTextField txtVorname = new JTextField(10);
 		panel.add(txtVorname);
 		verbindungen.add(panel);
 		
 		panel = new JPanel(new FlowLayout(0));
-		panel.add(new JLabel("Geburtsname:"));
+		lblGeburtsname = new JLabel("Geburtsname:");
+		panel.add(lblGeburtsname);
 		verbindungen.add(panel);
 		
 		panel = new JPanel(new FlowLayout(0));
-		JTextField txtGeburtsname = new JTextField(10);
+		txtGeburtsname = new JTextField(10);
 		panel.add(txtGeburtsname);
 		verbindungen.add(panel);
 		
@@ -81,7 +91,7 @@ public class StammdatenErfassen {
 		verbindungen.add(panel);
 		
 		panel = new JPanel(new FlowLayout(0));
-		JTextField txtEMail = new JTextField(10);
+		final JTextField txtEMail = new JTextField(10);
 		panel.add(txtEMail);
 		verbindungen.add(panel);
 		
@@ -98,12 +108,61 @@ public class StammdatenErfassen {
 		JRadioButton cbVerwitwet = new JRadioButton("verwitwet");
 		JRadioButton cbGeschieden = new JRadioButton("geschieden");
 		
-		ButtonGroup group = new ButtonGroup();
+		final ButtonGroup group = new ButtonGroup();
 		
 		group.add(cbLedig);
 		group.add(cbVerheiratet);
 		group.add(cbVerwitwet);
 		group.add(cbGeschieden);
+		
+		ActionListener action = new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String command = e.getActionCommand();
+				if (command.equals("ledig")) {
+					txtGeburtsname.setText("");
+					lblGeburtsname.setVisible(false);
+					txtGeburtsname.setVisible(false);
+					logonscreen.pack();
+				} else {
+					lblGeburtsname.setVisible(true);
+					txtGeburtsname.setVisible(true);
+					logonscreen.pack();
+				}
+
+			}
+		};
+		
+		ActionListener actionButton = new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String command = e.getActionCommand();
+				if (command.equals("Hinzufügen")) {
+					System.out.println(liste.hinzufuegen(cbGeschlecht.getSelectedItem().toString(), txtName.getText(), txtVorname.getText(), 
+							txtGeburtsname.getText(), txtEMail.getText(), group.getSelection().toString()));
+				} else if (command.equals("Anzeigen")) {
+					liste.anzeigen(txtName.getText(), txtVorname.getText());
+				} else if (command.equals("Suchen")) {
+					if(liste.suchen(txtName.getText(), txtVorname.getText())) {
+						System.out.println("Der Einwohner wurde gefunden.");
+					}
+				} else if (command.equals("Löschen")) {
+					if(liste.loeschen(txtName.getText(), txtVorname.getText())) {
+						System.out.println("Der Einwohner wurde gelöscht.");
+					}
+				} else if (command.equals("Liste anzeigen")) {
+					liste.anzeigen(txtName.getText(), txtVorname.getText());
+				} else  {
+					System.out.println("AAAAAAAH!");
+				}
+
+			}
+		};
+		
+		
+		
 		
 		fStandPanel.add(cbLedig);
 		fStandPanel.add(cbVerheiratet);
@@ -113,17 +172,34 @@ public class StammdatenErfassen {
 		Border rahmen2 = BorderFactory.createTitledBorder("Dateien");
 		fStandPanel.setBorder(rahmen2);
 		
+		cbLedig.addActionListener(action);
+		cbVerheiratet.addActionListener(action);
+		cbVerwitwet.addActionListener(action);
+		cbGeschieden.addActionListener(action);
+		
 		mitte.add(fStandPanel);
 		
 		hauptpanel.add(mitte, BorderLayout.CENTER);
 		
 		//Buttons
 		JPanel buttons = new JPanel(new FlowLayout(1));
-		buttons.add(new JButton("Hinzufügen"));
-		buttons.add(new JButton("Anzeigen"));
-		buttons.add(new JButton("Suchen"));
-		buttons.add(new JButton("Löschen"));
-		buttons.add(new JButton("Liste anzeigen"));
+		JButton btnHinzufuegen = new JButton("Hinzufügen"); 
+		JButton btnAnzeigen = new JButton("Anzeigen");
+		JButton btnSuchen = new JButton("Suchen");
+		JButton btnLoeschen = new JButton("Löschen");
+		JButton btnListeAnzeigen = new JButton("Liste anzeigen");
+		
+		buttons.add(btnHinzufuegen);
+		buttons.add(btnAnzeigen);
+		buttons.add(btnSuchen);
+		buttons.add(btnLoeschen);
+		buttons.add(btnListeAnzeigen);
+		
+		btnHinzufuegen.addActionListener(actionButton);
+		btnAnzeigen.addActionListener(actionButton);
+		btnSuchen.addActionListener(actionButton);
+		btnLoeschen.addActionListener(actionButton);
+		btnListeAnzeigen.addActionListener(actionButton);
 		
 		hauptpanel.add(oben,BorderLayout.NORTH);
 		hauptpanel.add(buttons, BorderLayout.SOUTH);

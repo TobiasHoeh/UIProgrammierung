@@ -19,9 +19,7 @@ public class Einwohner implements Comparable<Einwohner>{
 
 	@Override
 	public int compareTo(Einwohner o) {
-		if((o.getName() == this.getName() && o.getAnrede() == this.getAnrede() && o.getVorname() == this.getVorname() && o.geteMail() == this.geteMail() && o.getFamilienstand() == this.getFamilienstand())) {
-			return 1;
-		}
+		if(o.getName().compareTo(this.name) == 0) return (o.getVorname().compareTo(this.vorname));
 		return 0;
 	}
 
@@ -71,6 +69,10 @@ public class Einwohner implements Comparable<Einwohner>{
 
 	public void setFamilienstand(String familienstand) {
 		this.familienstand = familienstand;
+	}
+	
+	public String toString() {
+		return "Name: " + name + " Vorname: " + vorname;
 	}
 	
 }
